@@ -8,11 +8,11 @@ Dentre as principais informações estão:
 
 - Dados principais do discente logado;
 
-- Horários e locais de aula; 
+- Horários e locais de aula;
 
-- Boletins de todos os semetres.
+- Boletins de todos os semestres.
 
-Para o futuro, será necessário um sitema simples para autenticação OAuth com o SUAP e envios dos dados para a interface.
+Para o futuro, será necessário um sistema simples para autenticação OAuth com o SUAP e envios dos dados para a interface.
 
 ## Tecnologias
 
