@@ -1,15 +1,18 @@
-import { Component } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { FormField, form, min, required } from '@angular/forms/signals';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { CheckboxModule } from 'primeng/checkbox';
-import { SelectModule } from 'primeng/select';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 
 type Situacao = 'Cursando' | 'Aprovado' | 'Reprovado';
+
+interface FormProgress {
+  total: number;
+  remaining: number;
+}
 
 interface EtapaNota {
   nota: number | null;
@@ -30,34 +33,35 @@ interface Disciplina {
   media_disciplina: number | null;
 }
 
-type DisciplinaForm = Pick<
-  Disciplina,
-  'disciplina' | 'segundo_semestre' | 'carga_horaria' | 'situacao'
->;
+interface DisciplinaForm {
+  disciplina: string;
+  segundo_semestre: boolean;
+  carga_horaria: number | null;
+  situacao: Situacao;
+}
+
 
 @Component({
   selector: 'app-root',
   imports: [
     FormsModule,
+    FormField,
     ButtonModule,
     CardModule,
-    CheckboxModule,
-    SelectModule,
     InputNumberModule,
-    InputTextModule,
     TableModule,
     TagModule,
   ],
   templateUrl: './app.html',
 })
 export class App {
-  situacaoOptions: Array<{ label: string; value: Situacao }> = [
+  readonly situacaoOptions: Array<{ label: string; value: Situacao }> = [
     { label: 'Cursando', value: 'Cursando' },
     { label: 'Aprovado', value: 'Aprovado' },
     { label: 'Reprovado', value: 'Reprovado' },
   ];
 
-  disciplinas: Disciplina[] = [
+  readonly disciplinas = signal<Disciplina[]>([
     this.buildDisciplina({
       disciplina: 'Programação',
       segundo_semestre: true,
@@ -75,29 +79,94 @@ export class App {
       nota_etapa_2: { nota: 88, faltas: 1 },
       nota_etapa_3: { nota: 92, faltas: 0 },
     }),
-  ];
+  ]);
 
-  formData: DisciplinaForm = this.emptyForm();
-  editingIndex: number | null = null;
+  readonly disciplinaModel = signal<DisciplinaForm>(this.emptyForm());
+  readonly disciplinaForm = form(this.disciplinaModel, (schema) => {
+    required(schema.disciplina);
+    min(schema.carga_horaria, 1);
+  });
+
+  readonly editingIndex = signal<number | null>(null);
+  readonly submitAttempted = signal(false);
+
+  readonly formProgress = computed<FormProgress>(() => {
+    const disciplina = this.disciplinaForm.disciplina().value().trim();
+    const cargaHoraria = this.disciplinaForm.carga_horaria().value();
+    const total = 2;
+    const filled = Number(disciplina.length > 0) + Number((cargaHoraria ?? 0) >= 1);
+    const remaining = total - filled;
+    return { total, remaining,};
+  });
+
+  readonly formFeedback = computed<{ severity: string; text: string; }>(() => {
+    const { remaining, total } = this.formProgress();
+    if (this.editingIndex() != null){
+      return { severity: 'info', text: `Editando os dados da disciplina.`, };
+    }
+    if (remaining === 0) {
+      return { severity: 'success', text: 'Formulario pronto para salvar.' };
+    }
+    if (remaining === total) {
+      return { severity: 'warn', text: 'Comece preenchendo os campos obrigatorios.',};
+    }
+    return {
+      severity: 'info', text: `Faltam ${remaining} campo(s) obrigatorio(s).`, };
+  });
+
+  readonly feedbackClass = computed(() => {
+    const base = 'rounded-xl border px-4 py-3 text-sm';
+    const severity = this.formFeedback().severity;
+    if (severity === 'success') {
+      return `${base} border-emerald-200 bg-emerald-50 text-emerald-800`;
+    }
+    if (severity === 'warn') {
+      return `${base} border-amber-200 bg-amber-50 text-amber-800`;
+    }
+    return `${base} border-blue-200 bg-blue-50 text-blue-800`;
+  });
+
+  readonly canSubmit = computed(() => this.formProgress().remaining === 0);
+  readonly showDisciplinaError = computed(
+    () => this.submitAttempted() && !this.disciplinaForm.disciplina().value().trim(),
+  );
+  readonly showCargaError = computed(() => {
+    if (!this.submitAttempted()) {
+      return false;
+    }
+    const cargaHoraria = this.disciplinaForm.carga_horaria().value();
+    return (cargaHoraria ?? 0) < 1;
+  });
 
   saveDisciplina(): void {
-    if (!this.formData.disciplina.trim()) {
+    this.submitAttempted.set(true);
+    if (!this.canSubmit()) {
       return;
     }
 
-    const prepared =
-      this.editingIndex === null
-        ? this.buildDisciplina(this.formData)
-        : this.buildDisciplina({
-            ...this.disciplinas[this.editingIndex],
-            ...this.formData,
-          });
-
-    if (this.editingIndex === null) {
-      this.disciplinas = [...this.disciplinas, prepared];
+    const raw = this.disciplinaModel();
+    const formValue: Partial<Disciplina> = {
+      situacao: raw.situacao,
+      segundo_semestre: raw.segundo_semestre,
+      disciplina: raw.disciplina.trim(),
+      carga_horaria: raw.carga_horaria ?? 0,
+    };
+    const editingIndex = this.editingIndex();
+    let prepared: Disciplina;
+    if (editingIndex === null) {
+      prepared = this.buildDisciplina(formValue);
     } else {
-      this.disciplinas = this.disciplinas.map((item, index) =>
-        index === this.editingIndex ? prepared : item,
+      prepared = this.buildDisciplina({
+        ...this.disciplinas()[editingIndex],
+        ...formValue,
+      });
+    }
+
+    if (editingIndex === null) {
+      this.disciplinas.update((items) => [...items, prepared]);
+    } else {
+      this.disciplinas.update((items) =>
+        items.map((item, index) => (index === editingIndex ? prepared : item)),
       );
     }
 
@@ -105,30 +174,42 @@ export class App {
   }
 
   startEdit(index: number): void {
-    const target = this.disciplinas[index];
-    this.formData = {
+    const target = this.disciplinas()[index];
+    this.disciplinaModel.set({
       disciplina: target.disciplina,
       segundo_semestre: target.segundo_semestre,
       carga_horaria: target.carga_horaria,
       situacao: target.situacao,
-    };
-    this.editingIndex = index;
+    });
+    this.editingIndex.set(index);
+    this.submitAttempted.set(false);
   }
 
   deleteDisciplina(index: number): void {
-    this.disciplinas = this.disciplinas.filter((_, idx) => idx !== index);
-    if (this.editingIndex === index) {
+    this.disciplinas.update((items) => items.filter((_, idx) => idx !== index));
+    if (this.editingIndex() === index) {
       this.resetForm();
     }
   }
 
   resetForm(): void {
-    this.formData = this.emptyForm();
-    this.editingIndex = null;
+    this.disciplinaModel.set(this.emptyForm());
+    this.editingIndex.set(null);
+    this.submitAttempted.set(false);
   }
 
   onNotasChange(disciplina: Disciplina): void {
-    disciplina.media_disciplina = this.calculateMedia(disciplina);
+    this.disciplinas.update((items) =>
+      items.map((item) => {
+        if (item !== disciplina) {
+          return item;
+        }
+        return {
+          ...item,
+          media_disciplina: this.calculateMedia(item),
+        };
+      }),
+    );
   }
 
   formatMedia(media: number | null): string {
@@ -163,7 +244,7 @@ export class App {
     return {
       disciplina: '',
       segundo_semestre: false,
-      carga_horaria: 0,
+      carga_horaria: null,
       situacao: 'Cursando',
     };
   }

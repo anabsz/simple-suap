@@ -26,7 +26,7 @@
 
             <div class="overflow-x-auto">
               <p-table
-                [value]="disciplinas"
+                [value]="disciplinas()"
                 dataKey="disciplina"
                 styleClass="min-w-[56rem]"
               >
@@ -183,85 +183,90 @@
               <p class="text-sm text-slate-500">Preencha os dados principais da disciplina.</p>
             </div>
 
-            @if (editingIndex !== null) {
-              <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                Editando disciplina selecionada. Salve para atualizar ou cancele para limpar.
+            @let feedback = formFeedback();
+            
+            <div class="flex flex-col gap-2">
+              <div [class]="feedbackClass()">
+                  {{ feedback.text }}
               </div>
-            }
+            </div>
 
-            <form class="flex flex-col gap-4" (ngSubmit)="saveDisciplina()" #disciplinaForm="ngForm">
+            <form class="flex flex-col gap-4" (ngSubmit)="saveDisciplina()" novalidate>
               <div class="flex flex-col gap-2">
                 <label class="text-sm font-semibold text-slate-700" for="disciplina">
-                  Disciplina
+                  Disciplina <span class="text-red-500">*</span>
                 </label>
                 <input
-                  pInputText
                   id="disciplina"
-                  name="disciplina"
                   type="text"
-                  class="w-full"
-                  required
-                  [(ngModel)]="formData.disciplina"
+                  class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                  [formField]="disciplinaForm.disciplina"
                 />
+                @if (showDisciplinaError()) {
+                  <p class="text-xs font-semibold text-amber-700">Informe o nome da disciplina.</p>
+                }
               </div>
 
               <div class="flex flex-col gap-2">
                 <label class="text-sm font-semibold text-slate-700" for="cargaHoraria">
-                  Carga horária (h)
+                  Carga horária (h) <span class="text-red-500">*</span>
                 </label>
-                <p-inputNumber
-                  inputId="cargaHoraria"
-                  name="carga_horaria"
-                  [min]="1"
-                  [useGrouping]="false"
-                  styleClass="w-full"
-                  inputStyleClass="w-full"
-                  [(ngModel)]="formData.carga_horaria"
-                ></p-inputNumber>
+                <input
+                  id="cargaHoraria"
+                  type="number"
+                  inputmode="numeric"
+                  class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                  [formField]="disciplinaForm.carga_horaria"
+                />
+                @if (showCargaError()) {
+                  <p class="text-xs font-semibold text-amber-700">
+                    Informe a carga horaria (minimo 1h).
+                  </p>
+                }
               </div>
 
               <div class="flex flex-col gap-2">
                 <label class="text-sm font-semibold text-slate-700" for="situacao">
                   Situação
                 </label>
-                <p-select
-                  inputId="situacao"
-                  name="situacao"
-                  [options]="situacaoOptions"
-                  optionLabel="label"
-                  optionValue="value"
-                  placeholder="Selecione"
-                  styleClass="w-full"
-                  [(ngModel)]="formData.situacao"
-                ></p-select>
+                <select
+                  id="situacao"
+                  class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                  [formField]="disciplinaForm.situacao"
+                >
+                  @for (option of situacaoOptions; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
+                </select>
               </div>
 
               <div class="flex items-center gap-3">
-                <p-checkbox
-                  inputId="segundoSemestre"
-                  name="segundo_semestre"
-                  [binary]="true"
-                  [(ngModel)]="formData.segundo_semestre"
-                ></p-checkbox>
+                <input
+                  id="segundoSemestre"
+                  type="checkbox"
+                  class="h-4 w-4 accent-emerald-600"
+                  [formField]="disciplinaForm.segundo_semestre"
+                />
                 <label class="text-sm font-semibold text-slate-700" for="segundoSemestre">
                   Segundo semestre
                 </label>
               </div>
 
               <div class="flex flex-wrap gap-2 pt-2">
-                <p-button
+                <button
                   type="submit"
-                  label="Salvar"
-                  [disabled]="!formData.disciplina.trim()"
-                ></p-button>
-                @if (editingIndex !== null) {
-                  <p-button
+                  class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-emerald-300"
+                >
+                  Salvar
+                </button>
+                @if (editingIndex() !== null) {
+                  <button
                     type="button"
-                    label="Cancelar"
-                    severity="secondary"
-                    [outlined]="true"
-                    (onClick)="resetForm()"
-                  ></p-button>
+                    class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-700"
+                    (click)="resetForm()"
+                  >
+                    Cancelar
+                  </button>
                 }
               </div>
             </form>
