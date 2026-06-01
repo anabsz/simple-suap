@@ -1,0 +1,278 @@
+<div class="min-h-screen w-full bg-emerald-50">
+  <div class="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-8 px-4 py-10">
+    <header class="flex flex-col gap-3">
+      <div class="flex flex-col gap-2">
+        <h1 class="text-3xl font-semibold text-slate-900 md:text-4xl">
+          SUAP Simples
+        </h1>
+      </div>
+      <p class="text-lg font-semibold uppercase  text-slate-500">
+        Simular semestre
+      </p>
+    </header>
+
+    <section class="flex flex-col gap-8">
+      <p-card styleClass="h-full border border-slate-100">
+        <ng-template pTemplate="content">
+          <div class="flex flex-col gap-1">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Disciplinas</p>
+              <h2 class="text-xl font-semibold text-slate-900">Notas por etapa</h2>
+              <p class="text-sm text-slate-500">Edite as notas direto na tabela.</p>
+            </div>
+            <div class="rounded-full w-fit border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+              Média Automática
+            </div>
+
+            <div class="overflow-x-auto">
+              <p-table
+                [value]="disciplinas()"
+                dataKey="disciplina"
+                styleClass="min-w-[56rem]"
+              >
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th class="text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                      Disciplina
+                    </th>
+                    <th class="text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                      C.H.
+                    </th>
+                    <th class="text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                      Situação
+                    </th>
+                    <th class="text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                      Etapa 1
+                    </th>
+                    <th class="text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                      Etapa 2
+                    </th>
+                    <th class="text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                      Etapa 3
+                    </th>
+                    <th class="text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                      Etapa 4
+                    </th>
+                    <th class="text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                      Média final
+                    </th>
+                    <th class="text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                      Ações
+                    </th>
+                  </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-disciplina let-rowIndex="rowIndex">
+                  <tr class="align-top">
+                    <td>
+                      <div class="flex flex-col">
+                        <span class="text-sm font-semibold text-slate-900">
+                          {{ disciplina.disciplina }}
+                        </span>
+                        <span class="text-xs text-slate-500">
+                          {{ disciplina.segundo_semestre ? '2° semestre' : '1° semestre' }}
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="text-sm text-slate-700">{{ disciplina.carga_horaria }}h</span>
+                    </td>
+                    <td>
+                      <p-tag
+                        [value]="disciplina.situacao"
+                        [severity]="statusSeverity(disciplina.situacao)"
+                        styleClass="text-xs"
+                      ></p-tag>
+                    </td>
+                    <td>
+                      <p-inputNumber
+                        [min]="0"
+                        [max]="100"
+                        [allowEmpty]="true"
+                        [useGrouping]="false"
+                        inputStyleClass="w-20 text-sm"
+                        styleClass="w-24"
+                        aria-label="Nota etapa 1"
+                        [(ngModel)]="disciplina.nota_etapa_1.nota"
+                        (ngModelChange)="onNotasChange(disciplina)"
+                      ></p-inputNumber>
+                    </td>
+                    <td>
+                      <p-inputNumber
+                        [min]="0"
+                        [max]="100"
+                        [allowEmpty]="true"
+                        [useGrouping]="false"
+                        inputStyleClass="w-20 text-sm"
+                        styleClass="w-24"
+                        aria-label="Nota etapa 2"
+                        [(ngModel)]="disciplina.nota_etapa_2.nota"
+                        (ngModelChange)="onNotasChange(disciplina)"
+                      ></p-inputNumber>
+                    </td>
+                    <td>
+                      <p-inputNumber
+                        [min]="0"
+                        [max]="100"
+                        [allowEmpty]="true"
+                        [useGrouping]="false"
+                        inputStyleClass="w-20 text-sm"
+                        styleClass="w-24"
+                        aria-label="Nota etapa 3"
+                        [(ngModel)]="disciplina.nota_etapa_3.nota"
+                        (ngModelChange)="onNotasChange(disciplina)"
+                      ></p-inputNumber>
+                    </td>
+                    <td>
+                      <p-inputNumber
+                        [min]="0"
+                        [max]="100"
+                        [allowEmpty]="true"
+                        [useGrouping]="false"
+                        inputStyleClass="w-20 text-sm"
+                        styleClass="w-24"
+                        aria-label="Nota etapa 4"
+                        [(ngModel)]="disciplina.nota_etapa_4.nota"
+                        (ngModelChange)="onNotasChange(disciplina)"
+                      ></p-inputNumber>
+                    </td>
+                    <td>
+                      <span class="text-sm font-semibold text-slate-900">
+                        {{ formatMedia(disciplina.media_disciplina) }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="flex flex-col gap-2">
+                        <p-button
+                          label="Editar"
+                          size="small"
+                          severity="secondary"
+                          (onClick)="startEdit(rowIndex)"
+                          styleClass="w-full"
+                        ></p-button>
+                        <p-button
+                          label="Excluir"
+                          size="small"
+                          severity="danger"
+                          [outlined]="true"
+                          (onClick)="deleteDisciplina(rowIndex)"
+                          styleClass="w-full"
+                        ></p-button>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                  <div class="py-8 text-center text-sm text-slate-500">
+                    Nenhuma disciplina cadastrada.
+                  </div>
+                </ng-template>
+              </p-table>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+
+      <p-card styleClass="h-full border border-slate-100">
+        <ng-template pTemplate="content">
+          <div class="flex flex-col gap-6">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Cadastro</p>
+              <h2 class="text-xl font-semibold text-slate-900">Cadastrar disciplina</h2>
+              <p class="text-sm text-slate-500">Preencha os dados principais da disciplina.</p>
+            </div>
+
+            @let feedback = formFeedback();
+            
+            <div class="flex flex-col gap-2">
+              <div [class]="feedbackClass()">
+                  {{ feedback.text }}
+              </div>
+            </div>
+
+            <form class="flex flex-col gap-4" (ngSubmit)="saveDisciplina()" novalidate>
+              <div class="flex flex-col gap-2">
+                <label class="text-sm font-semibold text-slate-700" for="disciplina">
+                  Disciplina <span class="text-red-500">*</span>
+                </label>
+                <input
+                  id="disciplina"
+                  type="text"
+                  class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                  [formField]="disciplinaForm.disciplina"
+                />
+                @if (showDisciplinaError()) {
+                  <p class="text-xs font-semibold text-amber-700">Informe o nome da disciplina.</p>
+                }
+              </div>
+
+              <div class="flex flex-col gap-2">
+                <label class="text-sm font-semibold text-slate-700" for="cargaHoraria">
+                  Carga horária (h) <span class="text-red-500">*</span>
+                </label>
+                <input
+                  id="cargaHoraria"
+                  type="number"
+                  inputmode="numeric"
+                  class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                  [formField]="disciplinaForm.carga_horaria"
+                />
+                @if (showCargaError()) {
+                  <p class="text-xs font-semibold text-amber-700">
+                    Informe a carga horaria (minimo 1h).
+                  </p>
+                }
+              </div>
+
+              <div class="flex flex-col gap-2">
+                <label class="text-sm font-semibold text-slate-700" for="situacao">
+                  Situação
+                </label>
+                <select
+                  id="situacao"
+                  class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                  [formField]="disciplinaForm.situacao"
+                >
+                  @for (option of situacaoOptions; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <input
+                  id="segundoSemestre"
+                  type="checkbox"
+                  class="h-4 w-4 accent-emerald-600"
+                  [formField]="disciplinaForm.segundo_semestre"
+                />
+                <label class="text-sm font-semibold text-slate-700" for="segundoSemestre">
+                  Segundo semestre
+                </label>
+              </div>
+
+              <div class="flex flex-wrap gap-2 pt-2">
+                <button
+                  type="submit"
+                  class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-emerald-300"
+                >
+                  Salvar
+                </button>
+                @if (editingIndex() !== null) {
+                  <button
+                    type="button"
+                    class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-700"
+                    (click)="resetForm()"
+                  >
+                    Cancelar
+                  </button>
+                }
+              </div>
+            </form>
+          </div>
+        </ng-template>
+      </p-card>
+    </section>
+  </div>
+</div>
