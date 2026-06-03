@@ -1,4 +1,4 @@
-<p-card styleClass="h-full border border-slate-100">
+<p-card class="h-full border border-slate-100">
 	<ng-template pTemplate="content">
 		<div class="flex flex-col gap-1">
 			<div>
@@ -14,7 +14,7 @@
 				<p-table
 					[value]="disciplinas"
 					dataKey="disciplina"
-					styleClass="min-w-[56rem]"
+					class="min-w-4xl"
 				>
 					<ng-template pTemplate="header">
 						<tr>
@@ -67,7 +67,7 @@
 								<p-tag
 									[value]="disciplina.situacao"
 									[severity]="statusSeverity(disciplina.situacao)"
-									styleClass="text-xs"
+									class="text-xs"
 								></p-tag>
 							</td>
 							<td>
@@ -77,7 +77,7 @@
 									[allowEmpty]="true"
 									[useGrouping]="false"
 									inputStyleClass="w-20 text-sm"
-									styleClass="w-24"
+									class="w-24"
 									aria-label="Nota etapa 1"
 									[(ngModel)]="disciplina.nota_etapa_1.nota"
 									(ngModelChange)="notasChange.emit(disciplina)"
@@ -90,7 +90,7 @@
 									[allowEmpty]="true"
 									[useGrouping]="false"
 									inputStyleClass="w-20 text-sm"
-									styleClass="w-24"
+									class="w-24"
 									aria-label="Nota etapa 2"
 									[(ngModel)]="disciplina.nota_etapa_2.nota"
 									(ngModelChange)="notasChange.emit(disciplina)"
@@ -103,7 +103,7 @@
 									[allowEmpty]="true"
 									[useGrouping]="false"
 									inputStyleClass="w-20 text-sm"
-									styleClass="w-24"
+									class="w-24"
 									aria-label="Nota etapa 3"
 									[(ngModel)]="disciplina.nota_etapa_3.nota"
 									(ngModelChange)="notasChange.emit(disciplina)"
@@ -116,7 +116,7 @@
 									[allowEmpty]="true"
 									[useGrouping]="false"
 									inputStyleClass="w-20 text-sm"
-									styleClass="w-24"
+									class="w-24"
 									aria-label="Nota etapa 4"
 									[(ngModel)]="disciplina.nota_etapa_4.nota"
 									(ngModelChange)="notasChange.emit(disciplina)"
@@ -133,16 +133,16 @@
 										label="Editar"
 										size="small"
 										severity="secondary"
-										(onClick)="edit.emit(rowIndex)"
-										styleClass="w-full"
+										(onClick)="edit.emit(disciplina.id)"
+										class="w-full"
 									></p-button>
 									<p-button
 										label="Excluir"
 										size="small"
 										severity="danger"
 										[outlined]="true"
-										(onClick)="remove.emit(rowIndex)"
-										styleClass="w-full"
+										(onClick)="remove.emit(disciplina.id)"
+										class="w-full"
 									></p-button>
 								</div>
 							</td>
