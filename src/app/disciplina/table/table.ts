@@ -5,7 +5,7 @@ import { CardModule } from 'primeng/card';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { Disciplina, Situacao } from '../disciplina-model';
+import { Disciplina, Situacao } from '../disciplina.model';
 
 @Component({
   selector: 'app-disciplina-table',
@@ -21,8 +21,8 @@ import { Disciplina, Situacao } from '../disciplina-model';
 })
 export class DisciplinaTableComponent {
   @Input() disciplinas: Disciplina[] = [];
-  @Output() edit = new EventEmitter<number>();
-  @Output() remove = new EventEmitter<number>();
+  @Output() edit = new EventEmitter<string>();
+  @Output() remove = new EventEmitter<string>();
   @Output() notasChange = new EventEmitter<Disciplina>();
 
   formatMedia(media: number | null): string {

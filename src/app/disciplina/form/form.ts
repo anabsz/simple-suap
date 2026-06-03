@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, compu
 import { FormsModule } from '@angular/forms';
 import { FormField, form, min, required } from '@angular/forms/signals';
 import { CardModule } from 'primeng/card';
-import { Disciplina, DisciplinaForm, Situacao } from '../disciplina-model';
+import { Disciplina, DisciplinaForm, Situacao } from '../disciplina.model';
 
 
 @Component({
@@ -54,6 +54,7 @@ export class DisciplinaFormComponent implements OnChanges {
       });
     } else {
       this.isEditing.set(false);
+      this.disciplinaModel.set(this.emptyForm());
     }
   }
 
