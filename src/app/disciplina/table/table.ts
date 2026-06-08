@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -20,10 +20,11 @@ import { Disciplina, Situacao } from '../disciplina.model';
   templateUrl: './table.html',
 })
 export class DisciplinaTableComponent {
-  @Input() disciplinas: Disciplina[] = [];
-  @Output() edit = new EventEmitter<string>();
-  @Output() remove = new EventEmitter<string>();
-  @Output() notasChange = new EventEmitter<Disciplina>();
+  disciplinas = input<Disciplina[]>([]);
+
+  edit = output<string>();
+  remove = output<string>();
+  notasChange = output<Disciplina>();
 
   formatMedia(media: number | null): string {
     return media === null ? '-' : media.toFixed(1);
