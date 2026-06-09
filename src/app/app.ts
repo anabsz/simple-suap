@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { DisciplinaPage } from './disciplina/disciplina.page';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [DisciplinaPage],
+  imports: [RouterOutlet],
   template: `
-    <app-disciplina-page />
+    <router-outlet />
   `
 })
 export class App {
