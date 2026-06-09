@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { DisciplinaTablePage } from './disciplina/pages/table.page';
 import { DisciplinaCreatePage } from './disciplina/pages/create.page';
 import { DisciplinaEditPage } from './disciplina/pages/update.page';
+import { DisciplinaDetailPage } from './disciplina/pages/detail.page';
 
 export const routes: Routes = [
   {
@@ -19,6 +20,10 @@ export const routes: Routes = [
       {
         path: 'cadastrar',
         component: DisciplinaCreatePage,
+      },
+      {
+        path: ':id',
+        component: DisciplinaDetailPage,
       },
       {
         path: ':id/editar',

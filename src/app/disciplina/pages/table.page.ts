@@ -33,6 +33,7 @@ import { Disciplina } from "../disciplina.model";
       [disciplinas]="disciplinas()"
       (edit)="edit($event)"
       (remove)="delete($event)"
+      (detail)="detail($event)"
       (notasChange)="updateNotas($event)"
       />
 
@@ -52,6 +53,10 @@ export class DisciplinaTablePage {
   
   delete(id: number): void {
     this.service.delete(id);
+  }
+  
+  detail(id: number): void {
+    this.router.navigate(['/disciplinas', id]);
   }
   
   updateNotas(disciplina: Disciplina): void {
