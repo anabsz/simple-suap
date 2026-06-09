@@ -24,6 +24,7 @@ export class DisciplinaTableComponent {
 
   edit = output<number>();
   remove = output<number>();
+  detail = output<number>();
   notasChange = output<Disciplina>();
 
   formatMedia(media: number | null): string {
