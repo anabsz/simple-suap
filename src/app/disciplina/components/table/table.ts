@@ -1,11 +1,11 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { Disciplina, Situacao } from '../disciplina.model';
+import { Disciplina, Situacao } from '../../disciplina.model';
 
 @Component({
   selector: 'app-disciplina-table',
@@ -20,10 +20,12 @@ import { Disciplina, Situacao } from '../disciplina.model';
   templateUrl: './table.html',
 })
 export class DisciplinaTableComponent {
-  @Input() disciplinas: Disciplina[] = [];
-  @Output() edit = new EventEmitter<string>();
-  @Output() remove = new EventEmitter<string>();
-  @Output() notasChange = new EventEmitter<Disciplina>();
+  disciplinas = input<Disciplina[]>([]);
+
+  edit = output<number>();
+  remove = output<number>();
+  detail = output<number>();
+  notasChange = output<Disciplina>();
 
   formatMedia(media: number | null): string {
     return media === null ? '-' : media.toFixed(1);

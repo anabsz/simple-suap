@@ -6,7 +6,7 @@ export interface EtapaNota {
 }
 
 export interface Disciplina {
-  id: string;
+  id: number;
   disciplina: string;
   segundo_semestre: boolean;
   carga_horaria: number;

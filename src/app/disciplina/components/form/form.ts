@@ -1,8 +1,8 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, computed, signal } from '@angular/core';
+import { Component, input, OnChanges, output, effect, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField, form, min, required } from '@angular/forms/signals';
 import { CardModule } from 'primeng/card';
-import { Disciplina, DisciplinaForm, Situacao } from '../disciplina.model';
+import { Disciplina, DisciplinaForm, Situacao } from '../../disciplina.model';
 
 
 @Component({
@@ -10,10 +10,11 @@ import { Disciplina, DisciplinaForm, Situacao } from '../disciplina.model';
   imports: [CardModule, FormField, FormsModule],
   templateUrl: './form.html',
 })
-export class DisciplinaFormComponent implements OnChanges {
-  @Input() editingDisciplina: Disciplina | null = null;
-  @Output() save = new EventEmitter<DisciplinaForm>();
-  @Output() cancel = new EventEmitter<void>();
+export class DisciplinaFormComponent{
+  editingDisciplina = input<Disciplina | null>(null);
+
+  save = output<DisciplinaForm>();
+  cancel = output<void>();
 
   readonly situacaoOptions: Array<{ label: string; value: Situacao }> = [
     { label: 'Cursando', value: 'Cursando' },
@@ -39,23 +40,24 @@ export class DisciplinaFormComponent implements OnChanges {
     return `${base} border-emerald-200 bg-emerald-50 text-emerald-800`;
   });
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (!changes['editingDisciplina']) {
-      return;
-    }
+  constructor() {
+    effect(() => {
+      const disciplina = this.editingDisciplina();
 
-    if (this.editingDisciplina) {
-      this.isEditing.set(true);
-      this.disciplinaModel.set({
-        disciplina: this.editingDisciplina.disciplina,
-        segundo_semestre: this.editingDisciplina.segundo_semestre,
-        carga_horaria: this.editingDisciplina.carga_horaria,
-        situacao: this.editingDisciplina.situacao,
-      });
-    } else {
-      this.isEditing.set(false);
-      this.disciplinaModel.set(this.emptyForm());
-    }
+      if (disciplina) {
+        this.isEditing.set(true);
+
+        this.disciplinaModel.set({
+          disciplina: disciplina.disciplina,
+          segundo_semestre: disciplina.segundo_semestre,
+          carga_horaria: disciplina.carga_horaria,
+          situacao: disciplina.situacao,
+        });
+      } else {
+        this.isEditing.set(false);
+        this.disciplinaModel.set(this.emptyForm());
+      }
+    });
   }
 
   saveDisciplina(): void {

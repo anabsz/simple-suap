@@ -6,22 +6,23 @@ import { Disciplina, DisciplinaForm } from './disciplina.model';
 })
 export class DisciplinaService {
   private readonly disciplinasSignal = signal<Disciplina[]>([]);
-
   readonly disciplinas = computed(() => this.disciplinasSignal());
-
+  
+  private nextId = signal(1);
+  
   create(payload: DisciplinaForm): void {
     const disciplina = this.buildDisciplina({
-      id: crypto.randomUUID(),
+      id: this.nextId(),
       disciplina: payload.disciplina.trim(),
       carga_horaria: payload.carga_horaria ?? 0,
       situacao: payload.situacao,
       segundo_semestre: payload.segundo_semestre,
     });
-
+    this.nextId.update((id) => id + 1);
     this.disciplinasSignal.update((items) => [...items, disciplina]);
   }
 
-  update(id: string, payload: DisciplinaForm): void {
+  update(id: number, payload: DisciplinaForm): void {
     this.disciplinasSignal.update((items) =>
       items.map((item) => {
         if (item.id !== id) {
@@ -39,20 +40,20 @@ export class DisciplinaService {
     );
   }
 
-  delete(id: string): void {
+  delete(id: number): void {
     this.disciplinasSignal.update((items) =>
       items.filter((item) => item.id != id),
     );
   }
 
-  findById(id: string): Disciplina | undefined {
+  findById(id: number): Disciplina | undefined {
     return this.disciplinasSignal().find(
       (disciplina) => disciplina.id == id,
     );
   }
 
   updateNotas(
-    id: string,
+    id: number,
     updater: (
       disciplina: Disciplina,
     ) => Partial<
@@ -81,7 +82,7 @@ export class DisciplinaService {
 
   private emptyDisciplina(): Disciplina {
     return {
-      id: crypto.randomUUID(),
+      id: this.nextId(),
       disciplina: '',
       segundo_semestre: false,
       carga_horaria: 0,
