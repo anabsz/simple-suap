@@ -2,8 +2,8 @@ import { Component, computed, inject, signal } from '@angular/core';
 
 import { DisciplinaService } from './disciplina.service';
 import { Disciplina, DisciplinaForm } from './disciplina.model';
-import { DisciplinaFormComponent } from './form/form';
-import { DisciplinaTableComponent } from './table/table';
+import { DisciplinaFormComponent } from './components/form/form';
+import { DisciplinaTableComponent } from './components/table/table';
 
 @Component({
   selector: 'app-disciplina-page',

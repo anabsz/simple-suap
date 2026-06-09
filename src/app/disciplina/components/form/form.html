@@ -1,9 +1,11 @@
-<p-card styleClass="h-full border border-slate-100">
+<p-card class="h-full border border-slate-100">
 	<ng-template pTemplate="content">
 		<div class="flex flex-col gap-4">
 			<div>
-				<p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Cadastro</p>
-				<h2 class="text-xl font-semibold text-slate-900">Cadastrar disciplina</h2>
+				<p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Formulário</p>
+				<h2 class="text-xl font-semibold text-slate-900">
+					@if (isEditing()) { Editar Disciplina } @else { Cadastrar Disciplina }
+				</h2>
 				<p class="text-sm text-slate-500">Preencha os dados principais da disciplina.</p>
 			</div>
 

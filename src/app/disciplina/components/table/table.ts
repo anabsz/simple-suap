@@ -5,7 +5,7 @@ import { CardModule } from 'primeng/card';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { Disciplina, Situacao } from '../disciplina.model';
+import { Disciplina, Situacao } from '../../disciplina.model';
 
 @Component({
   selector: 'app-disciplina-table',
