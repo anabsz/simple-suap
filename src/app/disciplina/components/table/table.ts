@@ -22,8 +22,8 @@ import { Disciplina, Situacao } from '../../disciplina.model';
 export class DisciplinaTableComponent {
   disciplinas = input<Disciplina[]>([]);
 
-  edit = output<string>();
-  remove = output<string>();
+  edit = output<number>();
+  remove = output<number>();
   notasChange = output<Disciplina>();
 
   formatMedia(media: number | null): string {

@@ -46,11 +46,11 @@ export class DisciplinaTablePage {
   
   disciplinas = this.service.disciplinas;
   
-  edit(id: string) {
+  edit(id: number) {
     this.router.navigate(['/disciplinas', id, 'editar']);
   }
   
-  delete(id: string): void {
+  delete(id: number): void {
     this.service.delete(id);
   }
   

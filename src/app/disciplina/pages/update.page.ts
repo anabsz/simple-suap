@@ -37,7 +37,7 @@ export class DisciplinaEditPage {
   private service = inject(DisciplinaService);
 
   readonly disciplina = computed(() => {
-    const id = this.route.snapshot.paramMap.get('id');
+    const id = Number(this.route.snapshot.paramMap.get('id'));
 
     if (!id) {
       return null;
@@ -47,7 +47,7 @@ export class DisciplinaEditPage {
   });
 
   save(payload: DisciplinaForm) {
-    const id = this.route.snapshot.paramMap.get('id');
+    const id = Number(this.route.snapshot.paramMap.get('id'));
 
     if (!id) {
       return;

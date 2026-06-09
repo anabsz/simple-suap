@@ -47,7 +47,7 @@ import { DisciplinaTableComponent } from './components/table/table';
 export class DisciplinaPage {
   private readonly disciplinaService = inject(DisciplinaService);
   readonly disciplinas = this.disciplinaService.disciplinas;
-  readonly editingId = signal<string | null>(null);
+  readonly editingId = signal<number | null>(null);
 
   readonly editingDisciplina = computed(() => {
     const id = this.editingId();
@@ -69,7 +69,7 @@ export class DisciplinaPage {
     this.cancelEdit();
   }
 
-  startEdit(id: string): void {
+  startEdit(id: number): void {
     this.editingId.set(id);
   }
 
@@ -77,7 +77,7 @@ export class DisciplinaPage {
     this.editingId.set(null);
   }
 
-  delete(id: string): void {
+  delete(id: number): void {
     this.disciplinaService.delete(id);
     if (this.editingId() === id) {this.cancelEdit();}
   }
