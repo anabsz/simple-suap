@@ -26,3 +26,9 @@ export interface DisciplinaForm {
   carga_horaria: number | null;
   situacao: Situacao;
 }
+
+
+export type NotasUpdate = Partial<
+  Pick<Disciplina, 'nota_etapa_1' | 'nota_etapa_2' | 'nota_etapa_3' | 'nota_etapa_4'>
+>;
+

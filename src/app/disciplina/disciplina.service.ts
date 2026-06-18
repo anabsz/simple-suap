@@ -1,155 +1,115 @@
-import { Injectable, computed, signal } from '@angular/core';
-import { Disciplina, DisciplinaForm } from './disciplina.model';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
+import { environment } from '../../env';
+import {
+  Disciplina,
+  DisciplinaForm,
+  NotasUpdate,
+} from './disciplina.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DisciplinaService {
+  private readonly http = inject(HttpClient);
+
+  private readonly apiUrl = `${environment.apiUrl}/disciplinas`;
+  
   private readonly disciplinasSignal = signal<Disciplina[]>([]);
   readonly disciplinas = computed(() => this.disciplinasSignal());
-  
-  private nextId = signal(1);
-  
-  create(payload: DisciplinaForm): void {
-    const disciplina = this.buildDisciplina({
-      id: this.nextId(),
-      disciplina: payload.disciplina.trim(),
-      carga_horaria: payload.carga_horaria ?? 0,
-      situacao: payload.situacao,
-      segundo_semestre: payload.segundo_semestre,
-    });
-    this.nextId.update((id) => id + 1);
-    this.disciplinasSignal.update((items) => [...items, disciplina]);
-  }
 
-  update(id: number, payload: DisciplinaForm): void {
-    this.disciplinasSignal.update((items) =>
-      items.map((item) => {
-        if (item.id !== id) {
-          return item;
-        }
-
-        return this.buildDisciplina({
-          ...item,
-          disciplina: payload.disciplina.trim(),
-          carga_horaria: payload.carga_horaria ?? 0,
-          situacao: payload.situacao,
-          segundo_semestre: payload.segundo_semestre,
-        });
-      }),
+  /**
+   * Carrega a lista de disciplinas da API e popula o signal local.
+   * Chame no bootstrap do componente/feature (ex: no construtor ou em
+   * um `effect`/`ngOnInit`) para sincronizar o estado inicial.
+   */
+  load(): Observable<Disciplina[]> {
+    return this.http.get<Disciplina[]>(this.apiUrl).pipe(
+      tap((disciplinas) => this.disciplinasSignal.set(disciplinas)),
     );
   }
 
-  delete(id: number): void {
-    this.disciplinasSignal.update((items) =>
-      items.filter((item) => item.id != id),
+  create(payload: DisciplinaForm): Observable<Disciplina> {
+    const body: DisciplinaForm = {
+      ...payload,
+      disciplina: payload.disciplina.trim(),
+      carga_horaria: payload.carga_horaria ?? 0,
+    };
+
+    return this.http.post<Disciplina>(this.apiUrl, body).pipe(
+      tap((disciplina) =>
+        this.disciplinasSignal.update((items) => [...items, disciplina]),
+      ),
+    );
+  }
+
+  update(id: number, payload: DisciplinaForm): Observable<Disciplina> {
+    const body: DisciplinaForm = {
+      ...payload,
+      disciplina: payload.disciplina.trim(),
+      carga_horaria: payload.carga_horaria ?? 0,
+    };
+
+    return this.http.put<Disciplina>(`${this.apiUrl}/${id}`, body).pipe(
+      tap((disciplinaAtualizada) =>
+        this.disciplinasSignal.update((items) =>
+          items.map((item) =>
+            item.id === id ? disciplinaAtualizada : item,
+          ),
+        ),
+      ),
+    );
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      tap(() =>
+        this.disciplinasSignal.update((items) =>
+          items.filter((item) => item.id !== id),
+        ),
+      ),
     );
   }
 
   findById(id: number): Disciplina | undefined {
     return this.disciplinasSignal().find(
-      (disciplina) => disciplina.id == id,
+      (disciplina) => disciplina.id === id,
     );
   }
 
-  updateNotas(
-    id: number,
-    updater: (
-      disciplina: Disciplina,
-    ) => Partial<
-      Pick<
-        Disciplina,
-        | 'nota_etapa_1'
-        | 'nota_etapa_2'
-        | 'nota_etapa_3'
-        | 'nota_etapa_4'
-      >
-    >,
-  ): void {
-    this.disciplinasSignal.update((items) =>
-      items.map((item) => {
-        if (item.id !== id) {
-          return item;
-        }
-
-        return this.buildDisciplina({
-          ...item,
-          ...updater(item),
-        });
-      }),
+  /**
+   * Busca uma disciplina diretamente na API (útil quando ela ainda não
+   * está no signal local, ex: acesso direto a uma rota de edição).
+   */
+  fetchById(id: number): Observable<Disciplina> {
+    return this.http.get<Disciplina>(`${this.apiUrl}/${id}`).pipe(
+      tap((disciplina) =>
+        this.disciplinasSignal.update((items) => {
+          const existe = items.some((item) => item.id === id);
+          return existe
+            ? items.map((item) => (item.id === id ? disciplina : item))
+            : [...items, disciplina];
+        }),
+      ),
     );
   }
 
-  private emptyDisciplina(): Disciplina {
-    return {
-      id: this.nextId(),
-      disciplina: '',
-      segundo_semestre: false,
-      carga_horaria: 0,
-      situacao: 'Cursando',
-      nota_etapa_1: { nota: null, faltas: 0 },
-      nota_etapa_2: { nota: null, faltas: 0 },
-      nota_etapa_3: { nota: null, faltas: 0 },
-      nota_etapa_4: { nota: null, faltas: 0 },
-      media_disciplina: null,
-    };
-  }
-
-  private buildDisciplina(
-    partial: Partial<Disciplina>,
-  ): Disciplina {
-    const base = this.emptyDisciplina();
-
-    const disciplina: Disciplina = {
-      ...base,
-      ...partial,
-
-      nota_etapa_1: {
-        ...base.nota_etapa_1,
-        ...partial.nota_etapa_1,
-      },
-
-      nota_etapa_2: {
-        ...base.nota_etapa_2,
-        ...partial.nota_etapa_2,
-      },
-
-      nota_etapa_3: {
-        ...base.nota_etapa_3,
-        ...partial.nota_etapa_3,
-      },
-
-      nota_etapa_4: {
-        ...base.nota_etapa_4,
-        ...partial.nota_etapa_4,
-      },
-    };
-
-    return {
-      ...disciplina,
-      media_disciplina: this.calculateMedia(disciplina),
-    };
-  }
-
-  private calculateMedia(
-    disciplina: Disciplina,
-  ): number | null {
-    const notas = [
-      disciplina.nota_etapa_1.nota,
-      disciplina.nota_etapa_2.nota,
-      disciplina.nota_etapa_3.nota,
-      disciplina.nota_etapa_4.nota,
-    ].filter(
-      (nota): nota is number =>
-        nota !== null && !Number.isNaN(nota),
-    );
-
-    if (notas.length === 0) {
-      return null;
-    }
-
-    const soma = notas.reduce((acc, nota) => acc + nota, 0);
-
-    return Math.round((soma / notas.length) * 10) / 10;
+  /**
+   * Atualiza uma ou mais etapas de nota via PATCH /disciplinas/{id}/notas.
+   * `media_disciplina` é recalculada no backend e vem pronta na resposta.
+   */
+  updateNotas(id: number, payload: NotasUpdate): Observable<Disciplina> {
+    return this.http
+      .patch<Disciplina>(`${this.apiUrl}/${id}/notas`, payload)
+      .pipe(
+        tap((disciplinaAtualizada) =>
+          this.disciplinasSignal.update((items) =>
+            items.map((item) =>
+              item.id === id ? disciplinaAtualizada : item,
+            ),
+          ),
+        ),
+      );
   }
 }

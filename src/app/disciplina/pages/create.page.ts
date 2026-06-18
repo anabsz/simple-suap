@@ -36,7 +36,7 @@ export class DisciplinaCreatePage {
   private service = inject(DisciplinaService);
 
   save(payload: DisciplinaForm) {
-    this.service.create(payload);
+    this.service.create(payload).subscribe();
     this.router.navigate(['/disciplinas']);
   }
 
