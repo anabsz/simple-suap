@@ -53,7 +53,7 @@ export class DisciplinaEditPage {
       return;
     }
 
-    this.service.update(id, payload);
+    this.service.update(id, payload).subscribe();
 
     this.router.navigate(['/disciplinas']);
   }

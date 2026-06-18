@@ -47,12 +47,16 @@ export class DisciplinaTablePage {
   
   disciplinas = this.service.disciplinas;
   
+  constructor () {
+    this.service.load().subscribe();
+  }
+
   edit(id: number) {
     this.router.navigate(['/disciplinas', id, 'editar']);
   }
   
   delete(id: number): void {
-    this.service.delete(id);
+    this.service.delete(id).subscribe();
   }
   
   detail(id: number): void {
@@ -62,12 +66,12 @@ export class DisciplinaTablePage {
   updateNotas(disciplina: Disciplina): void {
     this.service.updateNotas(
       disciplina.id,
-      () => ({
+      {
         nota_etapa_1: disciplina.nota_etapa_1,
         nota_etapa_2: disciplina.nota_etapa_2,
         nota_etapa_3: disciplina.nota_etapa_3,
         nota_etapa_4: disciplina.nota_etapa_4,
-      }),
-    );
+      },
+    ).subscribe();
   }
 }
