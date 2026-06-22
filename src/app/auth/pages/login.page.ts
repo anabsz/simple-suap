@@ -39,10 +39,10 @@ import { LoginSubmit } from '../auth.model';
         @if (errorMessage()) {
           <p class="text-sm text-red-600">{{ errorMessage() }}</p>
         }
-
         <button
           type="submit"
-          class="rounded bg-emerald-600 px-4 py-2 font-semibold text-white hover:bg-emerald-700"
+          class="rounded bg-emerald-600 px-4 py-2 font-semibold text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          [disabled]="isLoading()"
         >
           Entrar
         </button>
@@ -58,8 +58,11 @@ export class LoginPage {
   password = '';
   readonly errorMessage = signal<string | null>(null);
 
+  readonly isLoading = signal<boolean>(false); 
+
   onSubmit(): void {
     this.errorMessage.set(null);
+    this.isLoading.set(true);
 
     const payload: LoginSubmit = {
       username: this.username,
@@ -73,7 +76,10 @@ export class LoginPage {
           error: () => this.router.navigate(['/disciplinas']),
         });
       },
-      error: () => this.errorMessage.set('Usuário ou senha inválidos.'),
+      error: () => {
+        this.errorMessage.set('Usuário ou senha inválidos.')
+        this.isLoading.set(false);
+      },
     });
   }
 }
