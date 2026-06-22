@@ -3,6 +3,7 @@ import { DisciplinaTableComponent } from "../components/table/table";
 import { Router, RouterLink } from "@angular/router";
 import { DisciplinaService } from "../disciplina.service";
 import { Disciplina } from "../disciplina.model";
+import { AuthService } from "../../auth/auth.service";
 
 @Component({
   imports: [
@@ -22,10 +23,17 @@ import { Disciplina } from "../disciplina.model";
           <p class="text-lg font-semibold uppercase text-slate-500">
             Simular semestre
           </p>
+          <div class="flex gap-3">
           <a class="rounded bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-600"
             routerLink="/disciplinas/cadastrar">
             Nova disciplina
           </a>
+          <button class="rounded bg-stone-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-600"
+            (click)="logout()">
+            Logout
+          </button>
+          </div>
+
         </div>
       </header>
 
@@ -44,6 +52,7 @@ import { Disciplina } from "../disciplina.model";
 export class DisciplinaTablePage {
   private router = inject(Router);
   private service = inject(DisciplinaService);
+  private authService = inject(AuthService);
   
   disciplinas = this.service.disciplinas;
   
@@ -73,5 +82,10 @@ export class DisciplinaTablePage {
         nota_etapa_4: disciplina.nota_etapa_4,
       },
     ).subscribe();
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }
